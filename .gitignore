@@ -38,3 +38,5 @@ yarn-error.log*
 # Antigravity artifacts
 .system_generated
 *.tsbuildinfo
+.history-cache.json
+*.history-cache.json

@@ -3,14 +3,20 @@
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import useSWR from 'swr';
-import { ElectionSummary, StateSummaryOverview } from '@/modules/elections/domain/models';
+import {
+  ElectionSummary,
+  StateSummaryOverview,
+  RoundComparison,
+} from '@/modules/elections/domain/models';
 import { BRAZIL_STATES } from '@/data/geography/brazil-states';
 import HeaderAndContext from '@/components/dashboard/HeaderAndContext';
 import NationalOverview from '@/components/dashboard/NationalOverview';
 import StatesAnalyticalPanorama from '@/components/dashboard/StatesAnalyticalPanorama';
 import BrazilInteractiveMap from '@/components/maps/BrazilInteractiveMap';
 import StatesTable from '@/components/tables/StatesTable';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
+import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
+import { AlertCircle, RefreshCw, Layers, TrendingUp, BarChart3 } from 'lucide-react';
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -28,7 +34,11 @@ function DashboardContent() {
 
   // Fonte de verdade da UF selecionada (sincronizada com ?uf=XX da URL)
   const urlUfParam = searchParams.get('uf');
+  const urlCompareParam = searchParams.get('comparar') === '1';
   const [selectedUf, setSelectedUf] = useState<string | null>(null);
+  const [activeSectionView, setActiveSectionView] = useState<'geral' | 'comparacao' | 'timeline'>(
+    urlCompareParam ? 'comparacao' : 'geral'
+  );
 
   // Sincroniza a seleção inicial ou mudanças de histórico do navegador (Voltar/Avançar)
   useEffect(() => {
@@ -68,6 +78,18 @@ function DashboardContent() {
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [router, pathname, searchParams]);
 
+  const handleToggleView = (view: 'geral' | 'comparacao' | 'timeline') => {
+    setActiveSectionView(view);
+    const params = new URLSearchParams(searchParams.toString());
+    if (view === 'comparacao') {
+      params.set('comparar', '1');
+    } else {
+      params.delete('comparar');
+    }
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
   // Consumo de dados oficiais via rotas internas com SWR
   const {
     data: nationalData,
@@ -75,7 +97,7 @@ function DashboardContent() {
     isLoading: nationalLoading,
     mutate: refreshNational,
   } = useSWR<ElectionSummary>('/api/eleicoes/presidente?scope=br', fetcher, {
-    refreshInterval: 15000,
+    refreshInterval: 10000,
     revalidateOnFocus: true,
     onSuccess: () => setLastClientFetch(new Date()),
   });
@@ -86,18 +108,35 @@ function DashboardContent() {
     isLoading: statesLoading,
     mutate: refreshStates,
   } = useSWR<StateSummaryOverview[]>('/api/eleicoes/estados', fetcher, {
-    refreshInterval: 25000,
+    refreshInterval: 20000,
     revalidateOnFocus: false,
     onSuccess: () => setLastClientFetch(new Date()),
   });
+
+  // Comparação Presidencial (Nacional ou da UF selecionada)
+  const currentScope = selectedUf || 'br';
+  const {
+    data: comparisonData,
+    isLoading: comparisonLoading,
+    mutate: refreshComparison,
+  } = useSWR<RoundComparison>(
+    `/api/eleicoes/comparacao?cargo=presidente&scope=${currentScope}`,
+    fetcher,
+    { refreshInterval: 20000 }
+  );
 
   const isRefreshing = nationalLoading || statesLoading;
 
   const handleManualRefresh = () => {
     refreshNational();
     refreshStates();
+    refreshComparison();
     setLastClientFetch(new Date());
   };
+
+  const selectedStateMeta = selectedUf
+    ? BRAZIL_STATES.find((s) => s.uf.toLowerCase() === selectedUf.toLowerCase())
+    : null;
 
   return (
     <div className="space-y-10">
@@ -134,6 +173,76 @@ function DashboardContent() {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Barra de Seleção de Modos: [Visão Geral | Comparativo 1º x 2º Turno | Linha do Tempo (10s)] */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-2 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm text-xs font-bold">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => handleToggleView('geral')}
+            className={`px-4 py-2 rounded-xl transition flex items-center gap-1.5 ${
+              activeSectionView === 'geral'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            Visão Geral (2º Turno)
+          </button>
+
+          <button
+            onClick={() => handleToggleView('comparacao')}
+            className={`px-4 py-2 rounded-xl transition flex items-center gap-1.5 ${
+              activeSectionView === 'comparacao'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            Comparar 1º x 2º Turno {selectedStateMeta ? `(${selectedStateMeta.uf})` : '(Brasil)'}
+          </button>
+
+          <button
+            onClick={() => handleToggleView('timeline')}
+            className={`px-4 py-2 rounded-xl transition flex items-center gap-1.5 ${
+              activeSectionView === 'timeline'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            Evolução da Apuração (10s)
+          </button>
+        </div>
+
+        {selectedStateMeta && (
+          <div className="text-xs font-medium text-gray-500 pr-2">
+            Filtro ativo:{' '}
+            <strong className="text-gray-900 dark:text-white">
+              {selectedStateMeta.name} ({selectedStateMeta.uf})
+            </strong>
+          </div>
+        )}
+      </div>
+
+      {/* Exibição condicional da Comparação ou Linha do Tempo em destaque */}
+      {activeSectionView === 'comparacao' && comparisonData && (
+        <TurnComparisonSection
+          comparison={comparisonData}
+          title={`Presidente da República — Comparação 1º e 2º Turno (${
+            selectedStateMeta ? selectedStateMeta.name : 'Brasil'
+          })`}
+        />
+      )}
+
+      {activeSectionView === 'timeline' && (
+        <ElectionTimelineSection
+          role="presidente"
+          scope={currentScope}
+          scopeName={selectedStateMeta ? `Presidente em ${selectedStateMeta.name}` : 'Presidente no Brasil'}
+          round={2}
+          onRefreshTriggered={handleManualRefresh}
+        />
       )}
 
       {/* ÁREA 3: Panorama Analítico dos Estados */}
@@ -174,6 +283,17 @@ function DashboardContent() {
             Carregando dados tabulares das 27 UFs...
           </p>
         </div>
+      )}
+
+      {/* Linha do tempo sempre acessível no rodapé analítico caso não esteja na aba ativa */}
+      {activeSectionView !== 'timeline' && (
+        <ElectionTimelineSection
+          role="presidente"
+          scope={currentScope}
+          scopeName={selectedStateMeta ? `Presidente em ${selectedStateMeta.name}` : 'Presidente no Brasil'}
+          round={2}
+          onRefreshTriggered={handleManualRefresh}
+        />
       )}
     </div>
   );

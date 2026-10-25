@@ -13,19 +13,26 @@ describe('NationalOverview Component', () => {
 
     render(<NationalOverview data={summary} />);
 
-    // Nomes dos candidatos
+    // Painel de Status da Apuração na esquerda
+    expect(screen.getByText('Status da Apuração')).toBeInTheDocument();
+    expect(screen.getByText(/Seções faltando apurar:/)).toBeInTheDocument();
+
+    // Nomes dos candidatos na direita
     expect(screen.getByText('FLAVIO BOLSONARO')).toBeInTheDocument();
     expect(screen.getByText('LULA')).toBeInTheDocument();
 
-    // Percentuais
+    // Percentuais dos candidatos
     expect(screen.getByText('50,46%')).toBeInTheDocument();
     expect(screen.getByText('49,54%')).toBeInTheDocument();
 
-    // Progresso das seções
+    // Progresso das seções totalizadas
     expect(screen.getByText('26,30%')).toBeInTheDocument();
     expect(screen.getByText(/131\.326/)).toBeInTheDocument();
 
     // Votos nulos com percentual oficial corrigido (1,96% e não 100%)
     expect(screen.getByText('(1,96%)')).toBeInTheDocument();
+
+    // Votos válidos
+    expect(screen.getByText('Votos Válidos')).toBeInTheDocument();
   });
 });

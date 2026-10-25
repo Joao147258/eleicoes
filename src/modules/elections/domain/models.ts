@@ -96,3 +96,91 @@ export interface StateSummaryOverview {
   totalizedSections: number;
   updatedAt: string;
 }
+
+export interface CandidateComparisonItem {
+  number: string;
+  name: string;
+  ballotName: string;
+  party: string;
+  partyNumber: string;
+  votes1T: number | null;
+  percentage1T: number | null;
+  votes2T: number | null;
+  percentage2T: number | null;
+  voteDiff: number | null; // votes2T - votes1T
+  percentageDiff: number | null; // percentage2T - percentage1T
+  isElected1T: boolean;
+  isElected2T: boolean;
+  status1T?: string;
+  status2T?: string;
+}
+
+export type GovernorElectionStatus =
+  | 'segundo_turno'
+  | 'definida_1t'
+  | 'nao_confirmada'
+  | 'indisponivel';
+
+export interface RoundComparison {
+  roleCode: '1' | '3';
+  roleDescription: string;
+  scope: string;
+  scopeName: string;
+  statusElection: GovernorElectionStatus;
+  statusMessage: string;
+  firstRound: ElectionSummary | null;
+  secondRound: ElectionSummary | null;
+  candidates: CandidateComparisonItem[];
+  votersComparison: {
+    totalElectorate1T: number | null;
+    totalElectorate2T: number | null;
+    turnout1T: number | null;
+    turnout2T: number | null;
+    turnoutDiff: number | null;
+    percentTurnout1T: number | null;
+    percentTurnout2T: number | null;
+    abstention1T: number | null;
+    abstention2T: number | null;
+    abstentionDiff: number | null;
+    percentAbstention1T: number | null;
+    percentAbstention2T: number | null;
+    validVotes1T: number | null;
+    validVotes2T: number | null;
+    blankVotes1T: number | null;
+    blankVotes2T: number | null;
+    nullVotes1T: number | null;
+    nullVotes2T: number | null;
+  };
+}
+
+export interface GovernorStateOverview {
+  uf: string;
+  name: string;
+  region: string;
+  status: GovernorElectionStatus;
+  statusLabel: string;
+  isFinal: boolean;
+  percentTotalized: number;
+  totalSections: number;
+  totalizedSections: number;
+  leaderOrElected: {
+    name: string;
+    ballotName: string;
+    party: string;
+    number: string;
+    percentage: number;
+    votes: number;
+    isElected: boolean;
+    status: string;
+  } | null;
+  runnerUp: {
+    name: string;
+    ballotName: string;
+    party: string;
+    number: string;
+    percentage: number;
+    votes: number;
+  } | null;
+  roundInDisplay: 1 | 2;
+  updatedAt: string;
+}

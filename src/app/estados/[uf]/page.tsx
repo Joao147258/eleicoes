@@ -4,8 +4,10 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import useSWR from 'swr';
-import { ElectionSummary } from '@/modules/elections/domain/models';
+import { ElectionSummary, RoundComparison } from '@/modules/elections/domain/models';
 import { STATES_MAP } from '@/data/geography/brazil-states';
+import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
+import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
 import { ArrowLeft, Clock, CheckCircle, RefreshCw, AlertCircle } from 'lucide-react';
 
 const fetcher = (url: string) => fetch(url).then((res) => {
@@ -26,7 +28,13 @@ export default function StateDetailPage() {
   } = useSWR<ElectionSummary>(
     ufParam ? `/api/eleicoes/presidente?scope=${ufParam}` : null,
     fetcher,
-    { refreshInterval: 15000 }
+    { refreshInterval: 10000 }
+  );
+
+  const { data: comparisonData } = useSWR<RoundComparison>(
+    ufParam ? `/api/eleicoes/comparacao?cargo=presidente&scope=${ufParam}` : null,
+    fetcher,
+    { refreshInterval: 20000 }
   );
 
   const formatNumber = (n: number) => n.toLocaleString('pt-BR');
@@ -211,6 +219,23 @@ export default function StateDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Comparação 1º e 2º Turno no Estado */}
+          {comparisonData && (
+            <TurnComparisonSection
+              comparison={comparisonData}
+              title={`Presidente em ${stateMeta.name} — Comparação 1º e 2º Turno`}
+            />
+          )}
+
+          {/* Linha do Tempo e Ritmo de Apuração no Estado */}
+          <ElectionTimelineSection
+            role="presidente"
+            scope={ufParam}
+            scopeName={`Presidente em ${stateMeta.name}`}
+            round={2}
+            onRefreshTriggered={() => mutate()}
+          />
         </div>
       ) : (
         <div className="animate-pulse bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-12 text-center">

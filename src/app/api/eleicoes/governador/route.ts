@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { defaultTseClient } from '@/modules/elections/infrastructure/tse/tse-client';
+import { defaultHistoryService } from '@/modules/elections/infrastructure/history/history-service';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 10;
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -17,10 +19,17 @@ export async function GET(request: NextRequest) {
 
   try {
     const summary = await defaultTseClient.fetchGovernorResults(uf, electionCode);
+    
+    try {
+      defaultHistoryService.recordSnapshot(summary);
+    } catch {
+      // Ignora erro não bloqueante
+    }
+
     return NextResponse.json(summary, {
       status: 200,
       headers: {
-        'Cache-Control': 'public, s-maxage=20, stale-while-revalidate=60',
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
       },
     });
   } catch (error: unknown) {
