@@ -64,7 +64,7 @@ export default function Footer() {
             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Dados verificados diretamente da CDN oficial do TSE</span>
           </div>
-          <p>© {new Date().getFullYear()} Painel Eleitoral Brasil • Licença MIT</p>
+          <p>© {new Date().getFullYear()} Painel Eleitoral Brasil • v1.0.1 (Auto-Deploy Ativo) • Licença MIT</p>
         </div>
       </div>
     </footer>
