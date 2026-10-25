@@ -35,6 +35,14 @@ describe('Normalizador EA20 do TSE', () => {
     expect(second.votes).toBe(16087378);
     expect(second.percentage).toBe(49.54);
 
+    // Estatísticas de votos (validando cálculo correto de percentual de nulos)
+    expect(summary.votes.totalVotes).toBe(33475854);
+    expect(summary.votes.validVotes).toBe(32472736);
+    expect(summary.votes.blankVotes).toBe(346293);
+    expect(summary.votes.percentBlank).toBe(1.03);
+    expect(summary.votes.nullVotes).toBe(656825);
+    expect(summary.votes.percentNull).toBe(1.96); // ptvn oficial do TSE, não pvn (100%)
+
     // Liderança e cálculo de margem
     expect(summary.leader).not.toBeNull();
     expect(summary.leader?.candidate.number).toBe('22');

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import StatesTable from '@/components/tables/StatesTable';
@@ -54,11 +54,28 @@ describe('StatesTable Component', () => {
     expect(screen.getByText('São Paulo')).toBeInTheDocument();
     expect(screen.getByText('Bahia')).toBeInTheDocument();
 
-    // Filtra por São Paulo
-    const searchInput = screen.getByPlaceholderText('Buscar estado...');
+    const searchInput = screen.getByPlaceholderText(/Buscar por estado ou sigla/i);
     fireEvent.change(searchInput, { target: { value: 'Paulo' } });
 
     expect(screen.getByText('São Paulo')).toBeInTheDocument();
     expect(screen.queryByText('Bahia')).not.toBeInTheDocument();
+  });
+
+  it('deve chamar onSelectState quando uma linha da tabela for clicada', () => {
+    const handleSelect = vi.fn();
+
+    render(
+      <StatesTable
+        states={mockStates}
+        selectedUf="ba"
+        onSelectState={handleSelect}
+      />
+    );
+
+    // Clica na linha de São Paulo
+    const spRow = screen.getByText('São Paulo');
+    fireEvent.click(spRow);
+
+    expect(handleSelect).toHaveBeenCalledWith('sp');
   });
 });

@@ -122,8 +122,8 @@ export function normalizeTseEA20(raw: TseEA20Raw, originUrl?: string): ElectionS
     percentValid: raw.v.tv > 0 ? Number(((raw.v.vv / raw.v.tv) * 100).toFixed(2)) : 0,
     blankVotes: raw.v.vb,
     percentBlank: raw.v.pvb,
-    nullVotes: raw.v.vn,
-    percentNull: raw.v.pvn,
+    nullVotes: raw.v.tvn ?? raw.v.vn,
+    percentNull: raw.v.ptvn ?? (raw.v.tv > 0 ? Number((((raw.v.tvn ?? raw.v.vn) / raw.v.tv) * 100).toFixed(2)) : 0),
   };
 
   const roleDescription = cargo.nmn || (cargo.cd === '1' ? 'Presidente' : 'Governador');

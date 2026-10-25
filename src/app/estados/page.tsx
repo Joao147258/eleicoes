@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import useSWR from 'swr';
 import { StateSummaryOverview } from '@/modules/elections/domain/models';
 import StatesTable from '@/components/tables/StatesTable';
@@ -10,6 +10,8 @@ import { RefreshCw } from 'lucide-react';
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function EstadosPage() {
+  const [selectedUf, setSelectedUf] = useState<string | null>(null);
+
   const { data: statesData, isLoading, mutate } = useSWR<StateSummaryOverview[]>(
     '/api/eleicoes/estados',
     fetcher,
@@ -40,8 +42,17 @@ export default function EstadosPage() {
 
       {statesData ? (
         <>
-          <BrazilInteractiveMap statesData={statesData} />
-          <StatesTable states={statesData} />
+          <BrazilInteractiveMap
+            statesData={statesData}
+            selectedUf={selectedUf}
+            onSelectState={(uf) => setSelectedUf(uf)}
+            onClearSelection={() => setSelectedUf(null)}
+          />
+          <StatesTable
+            states={statesData}
+            selectedUf={selectedUf}
+            onSelectState={(uf) => setSelectedUf(uf)}
+          />
         </>
       ) : (
         <div className="animate-pulse bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-12 text-center">
