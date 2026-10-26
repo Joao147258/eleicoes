@@ -55,6 +55,11 @@ export default function Footer() {
                   Metodologia e Transparência
                 </Link>
               </li>
+              <li>
+                <Link href="/linha-do-tempo" className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium flex items-center gap-1">
+                  Linha do Tempo das Eleições 2026
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

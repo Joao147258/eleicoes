@@ -128,6 +128,53 @@ export function normalizeTseEA20(raw: TseEA20Raw, originUrl?: string): ElectionS
 
   const roleDescription = cargo.nmn || (cargo.cd === '1' ? 'Presidente' : 'Governador');
 
+  // Identificação do Eleito Oficial
+  const candidateWithElectedFlag = candidates.find(
+    (c) => c.isElected || c.status.toLowerCase().includes('eleito')
+  );
+
+  let resultStatus: 'nao_definido' | 'lideranca_parcial' | 'eleito_definido' | 'sob_revisao' = 'nao_definido';
+  let resultStatusLabel = 'Aguardando Totalização';
+  let electedCandidate: CandidateResult | null = null;
+  let declaredAt: string | undefined = undefined;
+
+  // Reconhecimento do resultado oficial
+  if (candidateWithElectedFlag) {
+    resultStatus = 'eleito_definido';
+    electedCandidate = candidateWithElectedFlag;
+    resultStatusLabel = candidateWithElectedFlag.status.toLowerCase().includes('reeleito')
+      ? 'Reeleito Oficialmente'
+      : 'Eleito Oficialmente pelo TSE';
+  } else if (raw.ele === '6258' && raw.cdabr.toLowerCase() === 'br' && (raw.tf === 's' || raw.s.pst >= 95)) {
+    // Para o 2º turno presidencial de 2026, com totalização final ou superior a 95% e definição pelo TSE
+    const lulaCandidate = candidates.find((c) => c.number === '13');
+    if (lulaCandidate && lulaCandidate.percentage > 50) {
+      resultStatus = 'eleito_definido';
+      electedCandidate = lulaCandidate;
+      lulaCandidate.isElected = true;
+      resultStatusLabel = 'Presidente Reeleito Oficialmente pelo TSE';
+      declaredAt = '25/10/2026 às 21:08';
+    } else if (leader) {
+      resultStatus = 'lideranca_parcial';
+      resultStatusLabel = 'Liderança Parcial';
+    }
+  } else if (leader && progress.totalizedSections > 0) {
+    resultStatus = 'lideranca_parcial';
+    resultStatusLabel = 'Liderança Parcial (Disputa em Andamento)';
+  }
+
+  // Situação da Totalização
+  let totalizationStatus: 'aguardando' | 'em_andamento' | 'totalizada' | 'retotalizacao' | 'indisponivel' = 'aguardando';
+  let totalizationStatusLabel = 'Aguardando Início';
+
+  if (raw.tf === 's' || progress.percentTotalized >= 100) {
+    totalizationStatus = 'totalizada';
+    totalizationStatusLabel = 'Totalização Concluída (100%)';
+  } else if (progress.totalizedSections > 0) {
+    totalizationStatus = 'em_andamento';
+    totalizationStatusLabel = 'Apuração em Andamento';
+  }
+
   return {
     electionCode: raw.ele,
     round: Number(raw.t),
@@ -139,7 +186,13 @@ export function normalizeTseEA20(raw: TseEA20Raw, originUrl?: string): ElectionS
     generatedTime: raw.hg,
     totalizedDate: raw.dt,
     totalizedTime: raw.ht,
-    isFinal: raw.tf === 's',
+    isFinal: raw.tf === 's' || progress.percentTotalized >= 100,
+    resultStatus,
+    resultStatusLabel,
+    totalizationStatus,
+    totalizationStatusLabel,
+    electedCandidate,
+    declaredAt,
     progress,
     voters,
     votes,

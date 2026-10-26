@@ -8,6 +8,7 @@ import { ElectionSummary, RoundComparison } from '@/modules/elections/domain/mod
 import { STATES_MAP } from '@/data/geography/brazil-states';
 import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
 import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
+import { StateTimelineEvents } from '@/components/timeline/StateTimelineEvents';
 import { ArrowLeft, Clock, CheckCircle, RefreshCw, AlertCircle } from 'lucide-react';
 
 const fetcher = (url: string) => fetch(url).then((res) => {
@@ -236,6 +237,9 @@ export default function StateDetailPage() {
             round={2}
             onRefreshTriggered={() => mutate()}
           />
+
+          {/* Acontecimentos Eleitorais Documentados da UF */}
+          <StateTimelineEvents uf={ufParam} stateName={stateMeta.name} />
         </div>
       ) : (
         <div className="animate-pulse bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-12 text-center">

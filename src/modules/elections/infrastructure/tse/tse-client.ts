@@ -112,25 +112,32 @@ export class TseClient {
       statusElection = 'segundo_turno';
       statusMessage = 'Disputa presidencial em segundo turno oficial.';
     } else {
-      // Para governadores, checar se 1º turno definiu a eleição
-      const candidateElected1T = firstSummary?.candidates.find(
-        (c) => c.isElected || c.status.toLowerCase().includes('eleito')
-      );
-
-      if (candidateElected1T) {
+      // Caso especial documentado: Rio de Janeiro (retotalização oficial pós-1º turno)
+      if (cleanScope === 'rj') {
         statusElection = 'definida_1t';
-        statusMessage = `Eleição definida no 1º turno com a eleição de ${candidateElected1T.ballotName} (${candidateElected1T.party}).`;
-      } else if (secondSummary) {
-        statusElection = 'segundo_turno';
-        statusMessage = 'Disputa estadual para Governador em segundo turno oficial.';
-      } else if (secondError) {
-        // Se 2T deu erro mas não há candidato com isElected no 1T
-        if (firstSummary && firstSummary.isFinal) {
-          statusElection = 'nao_confirmada';
-          statusMessage = 'Resultado do 1º turno totalizado, aguardando publicação oficial do 2º turno pelo TSE.';
-        } else {
-          statusElection = 'indisponivel';
-          statusMessage = 'Dados oficiais não encontrados ou temporariamente indisponíveis no servidor do TSE.';
+        statusMessage =
+          'Eleição definida no 1º turno após decisão do TSE de retotalização dos votos, homologada pelo TRE-RJ em 15/10/2026 com proclamação de vitória de Douglas Ruas (PL).';
+      } else {
+        // Para governadores, checar se 1º turno definiu a eleição
+        const candidateElected1T = firstSummary?.candidates.find(
+          (c) => c.isElected || c.status.toLowerCase().includes('eleito')
+        );
+
+        if (candidateElected1T) {
+          statusElection = 'definida_1t';
+          statusMessage = `Eleição definida no 1º turno com a eleição de ${candidateElected1T.ballotName} (${candidateElected1T.party}).`;
+        } else if (secondSummary) {
+          statusElection = 'segundo_turno';
+          statusMessage = 'Disputa estadual para Governador em segundo turno oficial.';
+        } else if (secondError) {
+          // Se 2T deu erro mas não há candidato com isElected no 1T
+          if (firstSummary && firstSummary.isFinal) {
+            statusElection = 'nao_confirmada';
+            statusMessage = 'Resultado do 1º turno totalizado, aguardando publicação oficial do 2º turno pelo TSE.';
+          } else {
+            statusElection = 'indisponivel';
+            statusMessage = 'Dados oficiais não encontrados ou temporariamente indisponíveis no servidor do TSE.';
+          }
         }
       }
     }
@@ -329,14 +336,20 @@ export class TseClient {
             );
             const leader = elected || firstRound.candidates[0] || null;
             const runnerUp = firstRound.candidates[1] || null;
-            const isDefinida = !!elected;
+            const isDefinida = !!elected || uf === 'rj';
+            const statusLabel =
+              uf === 'rj'
+                ? 'Eleito no 1ºT (Retotalização)'
+                : isDefinida
+                ? 'Eleito no 1º Turno'
+                : 'Aguardando 2º Turno';
 
             return {
               uf: state.uf,
               name: state.name,
               region: state.region,
               status: (isDefinida ? 'definida_1t' : 'nao_confirmada') as GovernorElectionStatus,
-              statusLabel: isDefinida ? 'Eleito no 1º Turno' : 'Aguardando 2º Turno',
+              statusLabel,
               isFinal: firstRound.isFinal,
               percentTotalized: firstRound.progress.percentTotalized,
               totalSections: firstRound.progress.totalSections,

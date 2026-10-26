@@ -12,6 +12,7 @@ import {
 } from '@/modules/elections/domain/models';
 import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
 import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
+import { StateTimelineEvents } from '@/components/timeline/StateTimelineEvents';
 import {
   Clock,
   CheckCircle2,
@@ -490,6 +491,19 @@ function GovernadoresContent() {
               </div>
             )}
 
+            {/* Alerta Específico do Rio de Janeiro (Retotalização e Proclamação pelo TRE-RJ) */}
+            {selectedUf.toLowerCase() === 'rj' && (
+              <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-950 dark:text-blue-100 text-xs flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 text-blue-600 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-sm">Decisão Judicial e Retotalização Oficial no Rio de Janeiro</h4>
+                  <p className="mt-1 leading-relaxed">
+                    O Tribunal Superior Eleitoral (TSE) determinou a anulação de votos atribuídos a uma candidatura indeferida e ordenou a retotalização oficial pelo TRE-RJ. Com o recálculo dos votos válidos, em 15/10/2026 o TRE-RJ homologou o resultado e proclamou <strong>Douglas Ruas (PL)</strong> eleito governador no primeiro turno, dispensando a realização de 2º turno estadual.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Barra de Progresso de Totalização das Seções */}
             <div>
               <div className="flex justify-between items-end mb-2">
@@ -571,6 +585,14 @@ function GovernadoresContent() {
                   </div>
                 )
               )}
+            </div>
+
+            {/* Acontecimentos Eleitorais e Decisões Judiciais do Estado */}
+            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+              <StateTimelineEvents
+                uf={selectedUf}
+                stateName={selectedStateMeta?.name || selectedUf.toUpperCase()}
+              />
             </div>
           </div>
         )}

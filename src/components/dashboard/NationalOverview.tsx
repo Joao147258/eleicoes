@@ -8,9 +8,9 @@ import {
   UserCheck,
   TrendingUp,
   Vote,
+  ShieldCheck,
   Users,
-  AlertCircle,
-  HelpCircle,
+  Award,
 } from 'lucide-react';
 
 interface NationalOverviewProps {
@@ -28,6 +28,9 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
     val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' pp';
 
   const isFinal = data.isFinal;
+  const isElectionDefined = data.resultStatus === 'eleito_definido' || !!data.electedCandidate;
+  const elected = data.electedCandidate || (isElectionDefined ? candA : null);
+
   const totalSections = data.progress.totalSections;
   const totalizedSections = data.progress.totalizedSections;
   const remainingSections = Math.max(0, totalSections - totalizedSections);
@@ -68,28 +71,74 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
 
   return (
     <section aria-labelledby="national-overview-title" className="space-y-6">
-      {/* Título de Seção */}
+      {/* Título de Seção com Transição de Apuração para Resultado Oficial */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2
             id="national-overview-title"
             className="text-xl sm:text-2xl font-black text-gray-950 dark:text-white tracking-tight"
           >
-            Panorama Nacional
+            {isElectionDefined
+              ? 'Eleições 2026 — Resultado do Segundo Turno'
+              : 'Panorama Nacional da Apuração'}
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
-            Resultado da apuração presidencial oficial em todo o território nacional e seções do exterior.
+            {isElectionDefined
+              ? 'Resultado oficial consolidado pela Justiça Eleitoral para a Presidência da República.'
+              : 'Resultado da apuração presidencial oficial em todo o território nacional e seções do exterior.'}
           </p>
         </div>
 
-        {/* Tag informativa de Liderança Parcial */}
-        {!isFinal && data.leader && !data.leader.isTie && (
+        {/* Badge de Situação da Disputa */}
+        {isElectionDefined ? (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold self-start sm:self-auto">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Resultado Oficial Definido pelo TSE</span>
+          </div>
+        ) : data.leader && !data.leader.isTie ? (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-semibold self-start sm:self-auto">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Liderança Parcial em Andamento</span>
           </div>
-        )}
+        ) : null}
       </div>
+
+      {/* Card de Proclamação Histórica do Eleito quando a Eleição estiver Oficialmente Definida */}
+      {isElectionDefined && elected && (
+        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-900/10 via-emerald-800/5 to-transparent border border-emerald-300 dark:border-emerald-800/80 shadow-sm space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+            <span className="flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+              <Award className="w-4 h-4 text-emerald-600" />
+              Proclamação Oficial da Justiça Eleitoral
+            </span>
+            <span>
+              Definição atestada pelo TSE em 25/10/2026, às 21h08
+            </span>
+          </div>
+
+          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white tracking-tight">
+                Presidente reeleito — {elected.ballotName}
+              </h3>
+              {elected.viceCandidate && (
+                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-1 font-medium">
+                  Vice-presidente eleito: <strong className="text-gray-900 dark:text-white">{elected.viceCandidate.ballotName}</strong> ({elected.viceCandidate.party}) • Partido: {elected.party}
+                </p>
+              )}
+            </div>
+
+            <div className="text-left md:text-right">
+              <span className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 block">
+                {formatPercent(elected.percentage)}
+              </span>
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-bold block mt-0.5">
+                {formatNumber(elected.votes)} votos válidos oficiais
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Grid Principal: Esquerda = Status da Apuração | Direita = Resultado Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -109,13 +158,15 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
                 </h3>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
-                Acompanhe o avanço da totalização das seções e a situação geral da apuração.
+                {isFinal
+                  ? 'Totalização integral das seções concluída pela Justiça Eleitoral.'
+                  : 'Acompanhe o avanço da totalização das seções e a situação geral da apuração.'}
               </p>
             </div>
 
             {/* Badge de Situação Oficial */}
             <div className="flex-shrink-0">
-              {isFinal ? (
+              {isFinal || percentTotalized >= 100 ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Totalizada (100%)
                 </span>
@@ -245,7 +296,7 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
           {/* Cards dos Dois Candidatos */}
           {candA && candB && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Card Candidato A (1º Lugar / Líder) */}
+              {/* Card Candidato A */}
               <div
                 className={`rounded-2xl p-6 border relative overflow-hidden transition-all shadow-sm flex flex-col justify-between ${accentA?.bg} ${accentA?.border}`}
               >
@@ -255,9 +306,9 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
                       {candA.party} • Nº {candA.number}
                     </span>
 
-                    {candA.isElected ? (
+                    {candA.isElected || isElectionDefined ? (
                       <span className="flex items-center gap-1 bg-emerald-600 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-sm">
-                        <UserCheck className="w-3.5 h-3.5" /> ELEITO
+                        <UserCheck className="w-3.5 h-3.5" /> REELEITO OFICIAL
                       </span>
                     ) : !isFinal ? (
                       <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-300/60 dark:border-amber-700/60">
@@ -296,7 +347,7 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
                 </div>
               </div>
 
-              {/* Card Candidato B (2º Lugar) */}
+              {/* Card Candidato B */}
               <div
                 className={`rounded-2xl p-6 border relative overflow-hidden transition-all shadow-sm flex flex-col justify-between ${accentB?.bg} ${accentB?.border}`}
               >
@@ -373,11 +424,11 @@ export default function NationalOverview({ data }: NationalOverviewProps) {
                 />
               </div>
 
-              {!isFinal && (
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center pt-1 font-medium">
-                  * A liderança momentânea indica apenas a apuração parcial e não equivale a resultado oficial definitivo.
-                </p>
-              )}
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center pt-1 font-medium">
+                {isElectionDefined
+                  ? '* Dados oficiais consolidados pelo Tribunal Superior Eleitoral (TSE).'
+                  : '* A liderança momentânea indica apenas a apuração parcial e não equivale a resultado oficial definitivo.'}
+              </p>
             </div>
           )}
         </div>

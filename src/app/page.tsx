@@ -16,6 +16,7 @@ import BrazilInteractiveMap from '@/components/maps/BrazilInteractiveMap';
 import StatesTable from '@/components/tables/StatesTable';
 import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
 import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
+import { TimelinePreviewCard } from '@/components/timeline/TimelinePreviewCard';
 import { AlertCircle, RefreshCw, Layers, TrendingUp, BarChart3 } from 'lucide-react';
 
 const fetcher = (url: string) =>
@@ -244,6 +245,9 @@ function DashboardContent() {
           onRefreshTriggered={handleManualRefresh}
         />
       )}
+
+      {/* Card da Linha do Tempo Histórica das Eleições 2026 */}
+      <TimelinePreviewCard />
 
       {/* ÁREA 3: Panorama Analítico dos Estados */}
       {statesData && (

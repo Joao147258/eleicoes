@@ -14,6 +14,11 @@ const createMockSummary = (overrides: Partial<ElectionSummary> = {}): ElectionSu
   totalizedDate: '26/10/2026',
   totalizedTime: '17:30:00',
   isFinal: false,
+  resultStatus: 'lideranca_parcial',
+  resultStatusLabel: 'Liderança Parcial',
+  totalizationStatus: 'em_andamento',
+  totalizationStatusLabel: 'Em Andamento',
+  electedCandidate: null,
   progress: {
     totalSections: 1000,
     totalizedSections: 500,

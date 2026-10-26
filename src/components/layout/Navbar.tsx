@@ -37,6 +37,7 @@ export default function Navbar() {
     { href: '/', label: 'Nacional' },
     { href: '/estados', label: 'Estados' },
     { href: '/governadores', label: 'Governadores' },
+    { href: '/linha-do-tempo', label: 'Linha do Tempo' },
     { href: '/metodologia', label: 'Metodologia' },
   ];
 

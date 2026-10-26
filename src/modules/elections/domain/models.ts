@@ -45,6 +45,19 @@ export interface ProgressStats {
   status: 'not_started' | 'partial' | 'final';
 }
 
+export type ResultStatus =
+  | 'nao_definido'
+  | 'lideranca_parcial'
+  | 'eleito_definido'
+  | 'sob_revisao';
+
+export type TotalizationStatus =
+  | 'aguardando'
+  | 'em_andamento'
+  | 'totalizada'
+  | 'retotalizacao'
+  | 'indisponivel';
+
 export interface LeaderInfo {
   candidate: CandidateResult;
   voteMargin: number;
@@ -64,6 +77,12 @@ export interface ElectionSummary {
   totalizedDate: string;
   totalizedTime: string;
   isFinal: boolean;
+  resultStatus?: ResultStatus;
+  resultStatusLabel?: string;
+  totalizationStatus?: TotalizationStatus;
+  totalizationStatusLabel?: string;
+  electedCandidate?: CandidateResult | null;
+  declaredAt?: string;
   progress: ProgressStats;
   voters: VoterStats;
   votes: VoteStats;
