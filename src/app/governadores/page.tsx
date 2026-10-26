@@ -11,7 +11,6 @@ import {
   GovernorElectionStatus,
 } from '@/modules/elections/domain/models';
 import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
-import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
 import { StateTimelineEvents } from '@/components/timeline/StateTimelineEvents';
 import {
   Clock,
@@ -44,7 +43,7 @@ function GovernadoresContent() {
   const initialCompare = searchParams.get('comparar') === '1';
 
   const [selectedUf, setSelectedUf] = useState<string>(initialUf);
-  const [activeTab, setActiveTab] = useState<'resultado' | 'comparacao' | 'timeline'>(
+  const [activeTab, setActiveTab] = useState<'resultado' | 'comparacao'>(
     initialCompare ? 'comparacao' : 'resultado'
   );
   const [statusFilter, setStatusFilter] = useState<'all' | 'segundo_turno' | 'definida_1t'>('all');
@@ -65,7 +64,7 @@ function GovernadoresContent() {
     router.replace(`/governadores?${params.toString()}`, { scroll: false });
   };
 
-  const handleTabChange = (tab: 'resultado' | 'comparacao' | 'timeline') => {
+  const handleTabChange = (tab: 'resultado' | 'comparacao') => {
     setActiveTab(tab);
     const params = new URLSearchParams(searchParams.toString());
     if (tab === 'comparacao') {
@@ -436,18 +435,6 @@ function GovernadoresContent() {
             <Layers className="w-4 h-4" />
             Comparação 1º x 2º Turno
           </button>
-
-          <button
-            onClick={() => handleTabChange('timeline')}
-            className={`px-4 py-2 rounded-xl transition flex items-center gap-2 ${
-              activeTab === 'timeline'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200'
-            }`}
-          >
-            <TrendingUp className="w-4 h-4" />
-            Evolução da Apuração
-          </button>
         </div>
 
         {/* Conteúdo da Aba Ativa */}
@@ -617,16 +604,6 @@ function GovernadoresContent() {
               </div>
             )}
           </div>
-        )}
-
-        {/* Aba Linha do Tempo da Apuração a cada 10 segundos */}
-        {activeTab === 'timeline' && (
-          <ElectionTimelineSection
-            role="governador"
-            scope={selectedUf}
-            scopeName={`Governador de ${selectedStateMeta?.name}`}
-            round={isDecidedInFirstRound ? 1 : 2}
-          />
         )}
       </div>
     </div>

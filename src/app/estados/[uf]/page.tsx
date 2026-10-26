@@ -7,7 +7,6 @@ import useSWR from 'swr';
 import { ElectionSummary, RoundComparison } from '@/modules/elections/domain/models';
 import { STATES_MAP } from '@/data/geography/brazil-states';
 import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
-import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
 import { StateTimelineEvents } from '@/components/timeline/StateTimelineEvents';
 import { ArrowLeft, Clock, CheckCircle, RefreshCw, AlertCircle } from 'lucide-react';
 
@@ -228,15 +227,6 @@ export default function StateDetailPage() {
               title={`Presidente em ${stateMeta.name} — Comparação 1º e 2º Turno`}
             />
           )}
-
-          {/* Linha do Tempo e Ritmo de Apuração no Estado */}
-          <ElectionTimelineSection
-            role="presidente"
-            scope={ufParam}
-            scopeName={`Presidente em ${stateMeta.name}`}
-            round={2}
-            onRefreshTriggered={() => mutate()}
-          />
 
           {/* Acontecimentos Eleitorais Documentados da UF */}
           <StateTimelineEvents uf={ufParam} stateName={stateMeta.name} />

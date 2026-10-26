@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import useSWR from 'swr';
 import {
   ElectionSummary,
@@ -15,7 +16,6 @@ import StatesAnalyticalPanorama from '@/components/dashboard/StatesAnalyticalPan
 import BrazilInteractiveMap from '@/components/maps/BrazilInteractiveMap';
 import StatesTable from '@/components/tables/StatesTable';
 import { TurnComparisonSection } from '@/components/comparison/TurnComparisonSection';
-import { ElectionTimelineSection } from '@/components/history/ElectionTimelineSection';
 import { TimelinePreviewCard } from '@/components/timeline/TimelinePreviewCard';
 import { AlertCircle, RefreshCw, Layers, TrendingUp, BarChart3 } from 'lucide-react';
 
@@ -37,7 +37,7 @@ function DashboardContent() {
   const urlUfParam = searchParams.get('uf');
   const urlCompareParam = searchParams.get('comparar') === '1';
   const [selectedUf, setSelectedUf] = useState<string | null>(null);
-  const [activeSectionView, setActiveSectionView] = useState<'geral' | 'comparacao' | 'timeline'>(
+  const [activeSectionView, setActiveSectionView] = useState<'geral' | 'comparacao'>(
     urlCompareParam ? 'comparacao' : 'geral'
   );
 
@@ -79,7 +79,7 @@ function DashboardContent() {
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [router, pathname, searchParams]);
 
-  const handleToggleView = (view: 'geral' | 'comparacao' | 'timeline') => {
+  const handleToggleView = (view: 'geral' | 'comparacao') => {
     setActiveSectionView(view);
     const params = new URLSearchParams(searchParams.toString());
     if (view === 'comparacao') {
@@ -203,17 +203,13 @@ function DashboardContent() {
             Comparar 1º x 2º Turno {selectedStateMeta ? `(${selectedStateMeta.uf})` : '(Brasil)'}
           </button>
 
-          <button
-            onClick={() => handleToggleView('timeline')}
-            className={`px-4 py-2 rounded-xl transition flex items-center gap-1.5 ${
-              activeSectionView === 'timeline'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-            }`}
+          <Link
+            href="/linha-do-tempo"
+            className="px-4 py-2 rounded-xl transition flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            <TrendingUp className="w-4 h-4" />
-            Evolução da Apuração (10s)
-          </button>
+            <TrendingUp className="w-4 h-4 text-emerald-500" />
+            Linha do Tempo Oficial
+          </Link>
         </div>
 
         {selectedStateMeta && (
@@ -226,23 +222,13 @@ function DashboardContent() {
         )}
       </div>
 
-      {/* Exibição condicional da Comparação ou Linha do Tempo em destaque */}
+      {/* Exibição condicional da Comparação em destaque */}
       {activeSectionView === 'comparacao' && comparisonData && (
         <TurnComparisonSection
           comparison={comparisonData}
           title={`Presidente da República — Comparação 1º e 2º Turno (${
             selectedStateMeta ? selectedStateMeta.name : 'Brasil'
           })`}
-        />
-      )}
-
-      {activeSectionView === 'timeline' && (
-        <ElectionTimelineSection
-          role="presidente"
-          scope={currentScope}
-          scopeName={selectedStateMeta ? `Presidente em ${selectedStateMeta.name}` : 'Presidente no Brasil'}
-          round={2}
-          onRefreshTriggered={handleManualRefresh}
         />
       )}
 
@@ -287,17 +273,6 @@ function DashboardContent() {
             Carregando dados tabulares das 27 UFs...
           </p>
         </div>
-      )}
-
-      {/* Linha do tempo sempre acessível no rodapé analítico caso não esteja na aba ativa */}
-      {activeSectionView !== 'timeline' && (
-        <ElectionTimelineSection
-          role="presidente"
-          scope={currentScope}
-          scopeName={selectedStateMeta ? `Presidente em ${selectedStateMeta.name}` : 'Presidente no Brasil'}
-          round={2}
-          onRefreshTriggered={handleManualRefresh}
-        />
       )}
     </div>
   );
