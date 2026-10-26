@@ -12,7 +12,7 @@ export default function Footer() {
               Painel Eleitoral Brasil
             </h3>
             <p className="text-xs leading-relaxed text-gray-700 dark:text-gray-300">
-              Plataforma independente e de código aberto para acompanhamento em tempo real dos resultados das Eleições Gerais com base nos arquivos abertos oficiais de totalização do Tribunal Superior Eleitoral (TSE).
+              Plataforma independente e de código aberto para acompanhamento dos resultados oficiais das Eleições Gerais com base nos arquivos abertos de totalização do Tribunal Superior Eleitoral (TSE).
             </p>
           </div>
 

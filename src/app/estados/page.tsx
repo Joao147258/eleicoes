@@ -15,7 +15,7 @@ export default function EstadosPage() {
   const { data: statesData, isLoading, mutate } = useSWR<StateSummaryOverview[]>(
     '/api/eleicoes/estados',
     fetcher,
-    { refreshInterval: 30000 }
+    { refreshInterval: 0, revalidateOnFocus: false }
   );
 
   return (

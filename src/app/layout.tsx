@@ -6,13 +6,13 @@ import Footer from '@/components/layout/Footer';
 export const metadata: Metadata = {
   title: 'Painel Eleitoral Brasil — Resultados Oficiais TSE',
   description:
-    'Acompanhe a apuração e os resultados eleitorais brasileiros em tempo real com dados oficiais do Tribunal Superior Eleitoral (TSE).',
+    'Acompanhe os resultados oficiais e a memória histórica das Eleições Gerais de 2026 com dados do Tribunal Superior Eleitoral (TSE).',
   keywords: ['eleições 2026', 'apuração brasil', 'resultados tse', 'painel eleitoral'],
   authors: [{ name: 'Painel Eleitoral Brasil' }],
   metadataBase: new URL('https://eleicoes.joaovitordantas.com.br'),
   openGraph: {
     title: 'Painel Eleitoral Brasil — Resultados Oficiais TSE',
-    description: 'Acompanhamento independente da apuração oficial do TSE.',
+    description: 'Acompanhamento independente dos resultados oficiais do TSE.',
     url: 'https://eleicoes.joaovitordantas.com.br',
     siteName: 'Painel Eleitoral Brasil',
     locale: 'pt_BR',

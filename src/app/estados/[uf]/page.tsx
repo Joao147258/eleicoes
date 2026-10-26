@@ -29,13 +29,13 @@ export default function StateDetailPage() {
   } = useSWR<ElectionSummary>(
     ufParam ? `/api/eleicoes/presidente?scope=${ufParam}` : null,
     fetcher,
-    { refreshInterval: 10000 }
+    { refreshInterval: 0, revalidateOnFocus: false }
   );
 
   const { data: comparisonData } = useSWR<RoundComparison>(
     ufParam ? `/api/eleicoes/comparacao?cargo=presidente&scope=${ufParam}` : null,
     fetcher,
-    { refreshInterval: 20000 }
+    { refreshInterval: 0, revalidateOnFocus: false }
   );
 
   const formatNumber = (n: number) => n.toLocaleString('pt-BR');

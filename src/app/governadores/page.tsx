@@ -87,7 +87,8 @@ function GovernadoresContent() {
     firstRoundDecidedCount: number;
     states: GovernorStateOverview[];
   }>('/api/eleicoes/governadores/overview', fetcher, {
-    refreshInterval: 30000,
+    refreshInterval: 0,
+    revalidateOnFocus: false,
   });
 
   // 2. SWR para o estado selecionado (dados do resultado atual)
@@ -99,7 +100,8 @@ function GovernadoresContent() {
     `/api/eleicoes/governador?uf=${selectedUf}`,
     fetcher,
     {
-      refreshInterval: 10000,
+      refreshInterval: 0,
+      revalidateOnFocus: false,
       onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
         // Se 2T der 502/404, não tenta indefinidamente
         if (retryCount >= 2) return;
@@ -115,7 +117,7 @@ function GovernadoresContent() {
   } = useSWR<RoundComparison>(
     `/api/eleicoes/comparacao?cargo=governador&scope=${selectedUf}`,
     fetcher,
-    { refreshInterval: 20000 }
+    { refreshInterval: 0, revalidateOnFocus: false }
   );
 
   const selectedStateMeta = useMemo(
@@ -444,7 +446,7 @@ function GovernadoresContent() {
             }`}
           >
             <TrendingUp className="w-4 h-4" />
-            Linha do Tempo (10s)
+            Evolução da Apuração
           </button>
         </div>
 

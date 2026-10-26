@@ -91,15 +91,15 @@ function DashboardContent() {
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   };
 
-  // Consumo de dados oficiais via rotas internas com SWR
+  // Consumo de dados oficiais via rotas internas com SWR (eleição consolidada - sem polling automático)
   const {
     data: nationalData,
     error: nationalError,
     isLoading: nationalLoading,
     mutate: refreshNational,
   } = useSWR<ElectionSummary>('/api/eleicoes/presidente?scope=br', fetcher, {
-    refreshInterval: 10000,
-    revalidateOnFocus: true,
+    refreshInterval: 0,
+    revalidateOnFocus: false,
     onSuccess: () => setLastClientFetch(new Date()),
   });
 
@@ -109,7 +109,7 @@ function DashboardContent() {
     isLoading: statesLoading,
     mutate: refreshStates,
   } = useSWR<StateSummaryOverview[]>('/api/eleicoes/estados', fetcher, {
-    refreshInterval: 20000,
+    refreshInterval: 0,
     revalidateOnFocus: false,
     onSuccess: () => setLastClientFetch(new Date()),
   });
@@ -123,7 +123,7 @@ function DashboardContent() {
   } = useSWR<RoundComparison>(
     `/api/eleicoes/comparacao?cargo=presidente&scope=${currentScope}`,
     fetcher,
-    { refreshInterval: 20000 }
+    { refreshInterval: 0, revalidateOnFocus: false }
   );
 
   const isRefreshing = nationalLoading || statesLoading;

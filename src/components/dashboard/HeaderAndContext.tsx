@@ -29,8 +29,8 @@ export default function HeaderAndContext({
         {/* Título e Subtítulo */}
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-600 text-white shadow-sm">
-              Ao Vivo
+            <span className="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-700 text-white shadow-sm">
+              Resultado Oficial
             </span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center gap-1">
               <Calendar className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
@@ -41,7 +41,7 @@ export default function HeaderAndContext({
             Eleições 2026 — Segundo Turno
           </h1>
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium">
-            Apuração presidencial • Brasil • Dados oficiais do Tribunal Superior Eleitoral (TSE)
+            Resultado da apuração presidencial • Brasil • Dados oficiais do Tribunal Superior Eleitoral (TSE)
           </p>
         </div>
 

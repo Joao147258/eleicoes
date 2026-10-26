@@ -377,7 +377,7 @@ export default function BrazilInteractiveMap({
                   <HelpCircle className="w-4 h-4 text-emerald-500" /> Como explorar?
                 </div>
                 <p className="text-[11px] leading-relaxed">
-                  Clique diretamente em qualquer estado no mapa vetorial ou nas linhas da tabela comparativa abaixo para manter a UF selecionada na URL e ver os números locais em tempo real.
+                  Clique diretamente em qualquer estado no mapa vetorial ou nas linhas da tabela comparativa abaixo para manter a UF selecionada na URL e consultar o resultado detalhado.
                 </p>
               </div>
             </div>
